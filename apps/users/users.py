@@ -27,8 +27,10 @@ def login_user():
     email = data['email']
     password = data['password']
     userToLogin = User.objects(email = email).first()
-    if(check_password_hash(userToLogin.password, password) == True):
+    if(check_password_hash(userToLogin.password, password )== True):
         access_token = create_access_token(identity=userToLogin.userId)
+        updateUser = User.objects(email=email)
+        updateUser.update(isConnected = True, chatRoomId = 0)
         return jsonify({"token": access_token, "user_id": userToLogin.userId})
     else:
         return "Invalid credentials", 401
@@ -44,10 +46,11 @@ def logout_user():
 @usersApp.route('/enterChatroom', methods = ["POST"])
 @jwt_required()
 def enterChatroom():
-    userId = request.args.get("userId")
-    chatRoomId = request.args.get("chatRoomId")
+    data = request.get_json(force = True)
+    userId = data['userId']
+    chatRoomId = data['chatRoomId']
     chatRoomEntered = User.objects(userId = userId)
-    User.update(chatRoomId = chatRoomId)
+    chatRoomEntered.update(chatRoomId = chatRoomId)
     return "User entered the chatRoom"
 
 @usersApp.route('/connectedUsersList', methods = ["POST"])
