@@ -10,14 +10,13 @@ jwt = JWTManager(app)
 
 @usersApp.route('/register', methods = ["GET", "POST"])
 def register_user():
-    name = request.args.get("name")
-    email = request.args.get("email")
-    password = generate_password_hash(request.args.get("password"))
-    profilePic = request.args.get("profilePicture")
+    data = request.get_json(force=True)
+    name = data["name"]
+    email = data["email"]
+    password = generate_password_hash(data["password"])
     user_to_register = User(name=name,
                 email = email,
                 password = password,
-                profilePicture = profilePic,
                 )
     user_to_register.save()
     return "Exito!"
