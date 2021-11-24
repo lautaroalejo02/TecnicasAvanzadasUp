@@ -24,8 +24,11 @@ def register_user():
 
 @usersApp.route('/login', methods = ["GET", "POST"])
 def login_user():
-    userToLogin = User.objects(email = request.args.get("email")).first()
-    if(check_password_hash(userToLogin.password, request.args.get("password")) == True):
+    data = request.get_json(force = True)
+    email = data['email']
+    password = data['password']
+    userToLogin = User.objects(email = email).first()
+    if(check_password_hash(userToLogin.password, password) == True):
         access_token = create_access_token(identity=userToLogin.userId)
         return jsonify({"token": access_token, "user_id": userToLogin.userId})
     else:
