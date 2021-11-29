@@ -28,10 +28,9 @@ def send_message():
     messageToAdd.save()
     return "Message sent",200
 
-@chatsApp.route('/listMessages', methods = ["GET"])
-def list_messages():
-    data = request.get_json(force = True)
-    chatRoom = data['chatRoomId']
+@chatsApp.route('/listMessages/<string:chatRoomId>', methods = ["GET"])
+def list_messages(chatRoomId):
+    chatRoom = chatRoomId
     messages = []
     for message in Message.objects(chatRoomId=chatRoom):
         messages.append(message)
@@ -51,4 +50,3 @@ def list_chatRooms():
     for chat in ChatRoom.objects.all():
         chatRooms.append(chat)
     return jsonify(chatRooms)
-
