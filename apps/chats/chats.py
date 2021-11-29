@@ -4,11 +4,10 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 import secrets
 from flask_socketio import SocketIO, send
 from apps.chats.models import ChatRoom, Message
+from mongoengine.queryset.visitor import Q
 
 app = Flask(__name__)
 chatsApp = Blueprint('chatsApp', __name__)
-
-
 
 @chatsApp.route('/addChatRoom', methods = ["POST"])
 @jwt_required()
@@ -36,6 +35,14 @@ def list_messages():
     for message in Message.objects(chatRoomId=chatRoom):
         messages.append(message)
     return jsonify(messages)
+
+@chatsApp.route('/delete-messages', methods = ["DELETE"])
+def delete_all_messages():
+    data = request.get_json(force = True)
+    userId = data['userId']
+    chatRoomId = data['chatRoomId']
+    Message.objects(Q(userId=userId) & Q(chatRoomId=chatRoomId)).delete()
+    return "All messages deleted"
 
 @chatsApp.route('/listChatRoom', methods = ["GET"])
 def list_chatRooms():

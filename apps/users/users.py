@@ -14,6 +14,8 @@ def register_user():
     name = data["name"]
     email = data["email"]
     password = generate_password_hash(data["password"])
+    if(User.objects(email = email).count() > 0):
+        return "User already exists", 403
     user_to_register = User(name=name,
                 email = email,
                 password = password,
@@ -45,7 +47,7 @@ def logout_user():
 
 @usersApp.route('/enterChatroom', methods = ["POST"])
 @jwt_required()
-def enterChatroom():
+def enter_chatroom():
     data = request.get_json(force = True)
     userId = data['userId']
     chatRoomId = data['chatRoomId']
@@ -63,3 +65,12 @@ def list_connected_users():
     for user in User.objects(chatRoomId = chatRoomId):
         connected_users.append(user)
     return jsonify(connected_users)
+
+@usersApp.route('/exit_chatroom', methods = ["POST"])
+@jwt_required()
+def exit_chat_room():
+    data = request.get_json(force=True)
+    user_id = data['userId']
+    user_to_update = User.objects(userId=user_id)
+    user_to_update.update(chatRoomId = 0)
+    return "Cusbye"
