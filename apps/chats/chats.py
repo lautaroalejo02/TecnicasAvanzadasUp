@@ -43,6 +43,7 @@ def list_messages(chatRoomId):
     return make_response(jsonify(messages))
 
 @chatsApp.route('/delete-messages', methods = ["DELETE"])
+@jwt_required()
 def delete_all_messages():
     data = request.get_json(force = True)
     userId = data['userId']
