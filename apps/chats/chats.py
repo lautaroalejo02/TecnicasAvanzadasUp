@@ -20,12 +20,13 @@ def create_chatRoom():
 @chatsApp.route('/sendMessage', methods = ["POST"])
 @jwt_required()
 def send_message():
-    messageText = request.args.get("messageText")
-    userId = request.args.get("userId")
-    chatRoomId = request.args.get("chatRoomId")
+    data = request.get_json(force=True)
+    messageText = data['messageText']
+    userId = data['userId']
+    chatRoomId = data['chatRoomId']
     messageToAdd = Message(messageText=messageText, userId = userId, chatRoomId = chatRoomId)
     messageToAdd.save()
-    return "Message sent"
+    return "Message sent",200
 
 @chatsApp.route('/listMessages', methods = ["GET"])
 def list_messages():
