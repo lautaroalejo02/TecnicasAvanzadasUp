@@ -2,10 +2,13 @@ from flask import Flask, request, jsonify, Blueprint, session
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import secrets
+from flask_socketio import SocketIO, send
 from apps.chats.models import ChatRoom, Message
 
 app = Flask(__name__)
 chatsApp = Blueprint('chatsApp', __name__)
+
+
 
 @chatsApp.route('/addChatRoom', methods = ["POST"])
 @jwt_required()
@@ -25,16 +28,19 @@ def send_message():
     messageToAdd.save()
     return "Message sent"
 
-@chatsApp.route('/listMessages', methods = ["POST"])
-@jwt_required()
+@chatsApp.route('/listMessages', methods = ["GET"])
 def list_messages():
-    Message.objects.all()
-    return "Message sent"
+    data = request.get_json(force = True)
+    chatRoom = data['chatRoomId']
+    messages = []
+    for message in Message.objects(chatRoomId=chatRoom):
+        messages.append(message)
+    return jsonify(messages)
 
 @chatsApp.route('/listChatRoom', methods = ["GET"])
-@jwt_required()
 def list_chatRooms():
     chatRooms = []
     for chat in ChatRoom.objects.all():
         chatRooms.append(chat)
     return jsonify(chatRooms)
+

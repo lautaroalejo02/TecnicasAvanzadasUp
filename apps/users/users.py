@@ -40,7 +40,7 @@ def login_user():
 def logout_user():
     current_user_id = get_jwt_identity()
     user = User.objects(userId = current_user_id).first()
-
+    user.update(chatRoomId = 0)
     return jsonify({"id": user.id, "email": user.email}), 200
 
 @usersApp.route('/enterChatroom', methods = ["POST"])
@@ -51,13 +51,15 @@ def enterChatroom():
     chatRoomId = data['chatRoomId']
     chatRoomEntered = User.objects(userId = userId)
     chatRoomEntered.update(chatRoomId = chatRoomId)
-    return "User entered the chatRoom"
+    connected_users = []
+    for user in User.objects(chatRoomId = chatRoomId):
+        connected_users.append(user)
+    return jsonify(connected_users)
 
-@usersApp.route('/connectedUsersList', methods = ["POST"])
-@jwt_required()
+@usersApp.route('/connectedUsersList', methods = ["GET"])
 def list_connected_users():
-    userId = request.args.get("userId")
     chatRoomId = request.args.get("chatRoomId")
-    user_to_connect = User.objects(userId = userId)
-    user_to_connect.update(chatRoomId = chatRoomId)
-    return "User entered the chatRoom"
+    connected_users = []
+    for user in User.objects(chatRoomId = chatRoomId):
+        connected_users.append(user)
+    return jsonify(connected_users)
