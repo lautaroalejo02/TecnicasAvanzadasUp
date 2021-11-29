@@ -1,9 +1,10 @@
-from flask import Flask, request, jsonify, Blueprint, session
+from flask import Flask, request, jsonify, Blueprint, session,make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import secrets
 from flask_socketio import SocketIO, send
 from apps.chats.models import ChatRoom, Message
+from apps.users.models import User
 from mongoengine.queryset.visitor import Q
 
 app = Flask(__name__)
@@ -28,13 +29,18 @@ def send_message():
     messageToAdd.save()
     return "Message sent",200
 
-@chatsApp.route('/listMessages/<string:chatRoomId>', methods = ["GET"])
+@chatsApp.route('/listMessages/<int:chatRoomId>', methods = ["GET"])
 def list_messages(chatRoomId):
     chatRoom = chatRoomId
     messages = []
     for message in Message.objects(chatRoomId=chatRoom):
-        messages.append(message)
-    return jsonify(messages)
+        userName = User.objects(userId = message.userId)[0]['name']
+        kala = {
+            "_id": message.messageId,"chatRoom":message.chatRoomId, "messageText": message.messageText, 'sentDate': message.sentDate,
+            "userName": userName}
+        messages.append(kala)
+        #print(make_response(jsonify(messages)))
+    return make_response(jsonify(messages))
 
 @chatsApp.route('/delete-messages', methods = ["DELETE"])
 def delete_all_messages():
@@ -50,3 +56,4 @@ def list_chatRooms():
     for chat in ChatRoom.objects.all():
         chatRooms.append(chat)
     return jsonify(chatRooms)
+

@@ -10,6 +10,9 @@ class ChatRoom(db.Document):
 class Message(db.Document):
     messageId = db.SequenceField(primary_key=True)
     messageText = db.StringField(required = True)
-    userId = ReferenceField(User)
-    chatRoomId = ReferenceField(ChatRoom)
+    userId = db.IntField(default = 0)
+    chatRoomId = db.IntField(default = 0)
     sentDate = db.DateTimeField(required = True, default = date.today())
+
+    def newAttr(self, attr):
+        setattr(self, attr, attr)
