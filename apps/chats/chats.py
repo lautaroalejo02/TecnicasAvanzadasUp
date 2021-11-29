@@ -30,3 +30,11 @@ def send_message():
 def list_messages():
     Message.objects.all()
     return "Message sent"
+
+@chatsApp.route('/listChatRoom', methods = ["GET"])
+@jwt_required()
+def list_chatRooms():
+    chatRooms = []
+    for chat in ChatRoom.objects.all():
+        chatRooms.append(chat)
+    return jsonify(chatRooms)
