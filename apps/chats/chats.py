@@ -42,12 +42,11 @@ def list_messages(chatRoomId):
         #print(make_response(jsonify(messages)))
     return make_response(jsonify(messages))
 
-@chatsApp.route('/delete-messages', methods = ["DELETE"])
+@chatsApp.route('/delete-messages/<int:userId>/<int:chatRoomId>', methods = ["DELETE"])
 @jwt_required()
-def delete_all_messages():
-    data = request.get_json(force = True)
-    userId = data['userId']
-    chatRoomId = data['chatRoomId']
+def delete_all_messages(userId, chatRoomId):
+    userId = userId
+    chatRoomId = chatRoomId
     Message.objects(Q(userId=userId) & Q(chatRoomId=chatRoomId)).delete()
     return "All messages deleted"
 
